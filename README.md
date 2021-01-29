@@ -12,7 +12,7 @@ Also make sure that `export PATH="$PATH:$(yarn global bin)"` is in the `.bashrc`
 
 ## Usage (Hosting)
 Clone the directory 
-`git clone https://github.com/Chuangy/MockTrading`
+`git clone https://github.com/Chuangy/CamelUp`
 
 Create a `.env` file in `frontend/` to initialise the environmental variables for the ReactJS application. It should contain the following information:
 ```
