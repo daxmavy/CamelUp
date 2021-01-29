@@ -68,14 +68,23 @@ class Track:
 		self.track[place].oasis_player = oasis_player
 
 	def move(self, moving_camel, num_spaces):
+		#returns winning camel if game finished
+
 		#don't even optimise this part lmao 20 loops who cares
 		for space in self.track:
 			if moving_camel in space.camels:
 				camel_index = space.camels.index(moving_camel)
-				moving_camels = space.camels[moving_camels:]
-				space.camels
+				# extracting camels and every camel on top
+				moving_camels = space.camels[camel_index:]
 				break
-		spac
+		# take out these camels from this space
+		space.camels = space.camels[:camel_index]
+		# calculate target space
+		target_space_num = space.num + num_spaces
+
+		if target_space_num >= 20:
+			return moving_camels[-1]
+		else:
 
 
 class Space:
