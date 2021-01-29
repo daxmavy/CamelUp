@@ -60,6 +60,113 @@ class Server:
 
         response = []
         # Handle messages here
+        if msg_type == 'NewRoom':
+            if self._lobby.new_room(msg_json['data']['name']):
+                response = [
+                    {
+                        'type': 'Info',
+                        'status': 'New room successfully created'
+                    },
+                    {
+                        'type': 'RoomUpdate',
+                        'data': self._lobby.get_rooms()
+                    }
+                ]
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': 'Failed to create new room - duplicate name'
+                }
+        elif msg_type == 'DeleteRoom':
+            if self._lobby.delete_room(msg_json['data']['name']):
+                response = [
+                    {
+                        'type': 'Info',
+                        'status': 'Deleted room'
+                    },
+                    {
+                        'type': 'RoomUpdate',
+                        'data': self._lobby.get_rooms()
+                    }
+                ]
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': 'Failed to delete room - does not exist.'
+                }
+        elif msg_type == 'NewPlayer':
+            name = msg_json['data']['name']
+            password = msg_json['data']['password']
+            c = await self._lobby.new_player(name, password, ws)
+            if c:
+                response = [
+                    {
+                        'type': 'Info',
+                        'status': f'{name} successfully joined game'
+                    },
+                    {
+                        'type': 'PlayerUpdate',
+                        'data': self._lobby.get_players()
+                    }
+                ]
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': 'Failed to login - incorrect password'
+                }
+        elif msg_type == 'DeletePlayer':
+            name = msg_json['data']['name']
+            if self._lobby.delete_player(name):
+                response = [
+                    {
+                        'type': 'Info',
+                        'status': f'Deleted player {name}'
+                    },
+                    {
+                        'type': 'PlayerUpdate',
+                        'data': self._lobby.get_players()
+                    }
+                ]
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': 'Failed to delete player - does not exist.'
+                }
+
+        elif msg_type == 'JoinRoom':
+            player = msg_json['data']['player']
+            room = msg_json['data']['room']
+            c1 = await self._lobby.get_room(room).join(self._lobby.get_player(player))
+            if (c1):
+                await self._lobby.get_player(player).join_room(room)
+                response = {
+                    'type': 'Info',
+                    'status': f'{player} has joined {room}'
+                }
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': f'{player} failed to join {room}'
+                }
+        elif msg_type == 'LeaveRoom':
+            player = msg_json['data']['player']
+            room = msg_json['data']['room']
+            if (
+                self._lobby.get_player(player).leave_room(room) and
+                self._lobby.get_room(room).leave(player)
+            ):
+                response = {
+                    'type': 'Info',
+                    'status': f'{player} has left {room}'
+                }
+            else:
+                response = {
+                    'type': 'Info',
+                    'status': f'{player} failed to leave {room}'
+                }
+        elif msg_type == 'StartGame':
+            room = self._lobby.get_room(msg_json['data']['room'])
+            await room.start_game()
 
         await self.broadcast(response)
 
@@ -263,6 +370,19 @@ class Room:
             return 1
         else:
             return 0
+
+    async def start_game(self):
+        if self._status == 'started':
+            util.print_core(f'The game in {self._name} has already started!')
+            await self.tell_room({
+                'type': 'Info', 'status': f'The game in room {self._name} has already started'
+            })
+            return
+
+        util.print_core(f'The game in {self._name} is starting!')
+        await self.tell_room({
+            'type': 'Info', 'status': f'The game in room {self._name} has begun'
+        })
 
     def __hash__(self):
         return util.hash_string(self._name)
