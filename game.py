@@ -1,4 +1,5 @@
 from random import randint, sample
+import copy
 
 camel_list = ['white', 'blue', 'yellow', 'green', 'orange']
 
@@ -14,7 +15,10 @@ class Game:
 		self.winner_bets  = []
 		self.loser_bets   = []
 		self.track        = Track()
-		self.leg_bets     = reset_leg_bets()
+        self.leg_bets_INIT = {colour: [
+            (2,1,-1), (3,1,-1), (5,2,-1)
+        ] for colour in camel_list}
+		self.leg_bets     = copy.deepcopy(self.leg_bets_INIT)
 		self.rolled_dice  = reset_dice_status()
 		self.camel_locations
 		self.leg_num      = 0
@@ -26,7 +30,7 @@ class Game:
 	def end_leg(self):
 		for player in self.player_list():
 			player.do_accounting()
-		self.leg_bets     = reset_leg_bets()
+		self.leg_bets     = copy.deepcopy(self.leg_bets_INIT)
 		self.rolled_dice  = reset_dice_status()
 		self.leg_num     += 1
 		self.leg_turn_num = 0
@@ -38,6 +42,22 @@ class Game:
 		num_spaces     = randint(1, 3)
 		self.rolled_dice[moving_camel] = num_spaces
 		self.track.move(moving_camel, num_spaces)
+
+    def is_leg_bet_available(self):
+        if len(self.leg_bets[colour]) = 0:
+            return False
+        else:
+            return True
+
+    def make_leg_bet(self, str colour):
+        # assumes that you've already run 'is_leg_bet_available'
+        self.leg_bets[colour].pop()
+
+    def place_end_long(self, str player_name, str colour):
+        self.winner_bets.append((player_name, colour))
+
+    def place_end_short(self):
+        self.loser_bets.append((player_name, colour))
 
 class Track:
 	def __init__(self):
