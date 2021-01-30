@@ -36,7 +36,6 @@ class Game:
 		self.leg_turn_num = 0
 
 	def roll_dice(self)
-		self.current_player().give_money(1) # delet this
 		not_rolled_yet = [camel for camel in camel_list if not self.rolled_dice[camel]]
 		moving_camel   = sample(not_rolled_yet, 1)
 		num_spaces     = randint(1, 3)
