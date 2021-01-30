@@ -36,7 +36,7 @@ class Game:
 		self.leg_turn_num = 0
 
 	def roll_dice(self)
-		self.current_player().give_money(1)
+		self.current_player().give_money(1) # delet this
 		not_rolled_yet = [camel for camel in camel_list if not self.rolled_dice[camel]]
 		moving_camel   = sample(not_rolled_yet, 1)
 		num_spaces     = randint(1, 3)
@@ -85,6 +85,11 @@ class Track:
 		if target_space_num >= 20:
 			return moving_camels[-1]
 		else:
+            self.track[target_space_num].camels.extend(moving_camels)
+            if self.track[target_space_num].oasis = 1:
+                self.move(moving_camel, 1)
+            elif self.track[target_space_num].oasis = -1:
+                self.move(moving_camel, -1)
 
 
 class Space:
